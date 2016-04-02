@@ -1,6 +1,6 @@
 {
   "name": "flyguy",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Transparent, on-the-fly file type conversion based on file extension",
   "main": "index.js",
   "directories": {
