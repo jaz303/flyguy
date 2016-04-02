@@ -45,6 +45,7 @@ test('does not exist', (assert) => {
     const fg = instance();
     readStringFile(fg, 'foobar.md', (err, str) => {
         assert.ok(err);
+        assert.end();
     });
 });
 
