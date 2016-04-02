@@ -45,6 +45,8 @@ function create(rootDirectory, opts) {
                     stream.emit('error', err);
                     return;
                 }
+
+                stream.emit('converter', converter);
                 
                 isString = !!converter.string;
                 if ('streaming' in converter && converter.streaming) {
