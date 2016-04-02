@@ -1,0 +1,34 @@
+{
+  "name": "flyguy",
+  "version": "0.0.1",
+  "description": "Automatic, on-the-fly file type conversion based on the requested file extension",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "mime": "^1.3.4",
+    "marked": "^0.3.5",
+    "tape": "^4.5.1",
+    "through": "^2.3.8"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaz303/flyguy.git"
+  },
+  "keywords": [
+    "file",
+    "type",
+    "conversion"
+  ],
+  "author": "Jason Frame <jason@onehackoranother.com> (http://jasonframe.co.uk)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jaz303/flyguy/issues"
+  },
+  "homepage": "https://github.com/jaz303/flyguy#readme"
+}
