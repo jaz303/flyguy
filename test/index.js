@@ -38,7 +38,7 @@ function readStringFile(fg, path, cb) {
     });
     stream.on('error', (err) => {
         cb(err);
-    })
+    });
 }
 
 test('does not exist', (assert) => {

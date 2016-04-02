@@ -8,6 +8,11 @@ const parsePath = require('path').parse;
 const mime = require('mime');
 const through = require('through');
 
+const PASSTHROUGH = {
+    streaming: true,
+    convert: function(data) { return data; }
+};
+
 function create(rootDirectory, opts) {
     if (!opts) throw new Error("opts must be provided");
 
@@ -35,26 +40,30 @@ function create(rootDirectory, opts) {
                 this.emit('end');
             });
             
-            findConverter(fullPath, (sourcePath, converter) => {
-                if (!sourcePath || sourcePath === fullPath) {
-                    var input = fs.createReadStream(fullPath, opts);
-                    input.pipe(stream);
+            findConverter(fullPath, (err, sourcePath, converter) => {
+                if (err) {
+                    stream.emit('error', err);
+                    return;
+                }
+                
+                isString = !!converter.string;
+                if ('streaming' in converter && converter.streaming) {
+                    isStreaming = true;
                 } else {
-                    isString = !!converter.string;
-                    if ('streaming' in converter && converter.streaming) {
-                        isStreaming = true;
-                    } else {
-                        isStreaming = false;
-                        chunks = [];
-                    }
-                    convert = converter.convert;
+                    isStreaming = false;
+                    chunks = [];
+                }
+
+                convert = converter.convert;
+                if (converter !== PASSTHROUGH) {
                     if (isString) {
                         opts.encoding = opts.encoding || 'utf8';
                     } else {
                         delete opts.encoding;
-                    }
-                    fs.createReadStream(sourcePath, opts).pipe(stream);
+                    }    
                 }
+                
+                fs.createReadStream(sourcePath, opts).pipe(stream);
             });
             
             return stream;
@@ -64,21 +73,21 @@ function create(rootDirectory, opts) {
     function findConverter(path, cb) {
         fs.stat(path, (err, stats) => {
             // file exists - return same path
-            if (stats) return cb(path, null);
+            if (stats) return cb(null, path, PASSTHROUGH);
             const reqPath = parsePath(path);
             fs.readdir(reqPath.dir, (err, entries) => {
-                if (err) return cb(path, null);
+                if (err) return cb(err);
                 for (var ix = 0; ix < entries.length; ++ix) {
                     var srcPath = parsePath(entries[ix]);
                     if (srcPath.name === reqPath.name) {
                         var converter = lookupConverter(srcPath.ext.substr(1), reqPath.ext.substr(1));
                         if (converter) {
-                            return cb(join(reqPath.dir, srcPath.base), converter);
+                            return cb(null, join(reqPath.dir, srcPath.base), converter);
                         }
                     }
                 }
                 // not conversion found - just return same path so the open operation fails
-                return cb(path, null);
+                return cb(new Error("no conversion found"));
             });
         });
     }
