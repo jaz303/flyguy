@@ -49,10 +49,8 @@ function create(rootDirectory, opts) {
                 stream.emit('converter', converter);
                 
                 isString = !!converter.string;
-                if ('streaming' in converter && converter.streaming) {
-                    isStreaming = true;
-                } else {
-                    isStreaming = false;
+                isStreaming = !!converter.streaming;
+                if (!isStreaming) {
                     chunks = [];
                 }
 
