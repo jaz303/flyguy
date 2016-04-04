@@ -6,6 +6,8 @@ Let's say you had a directory of Markdown documents. `flyguy` lets you convert t
 
 Think of it as content negotiation for the filesystem.
 
+Of course, you're not limited to Markdown and HTML - conversions can be defined between any desired file formats.
+
 ## Installation
 
 ```shell
