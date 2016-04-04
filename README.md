@@ -1,6 +1,10 @@
 # flyguy
 
-On the fly filetype conversion based on file extensions.
+On the fly filetype conversion based on MIME types and/or file extensions.
+
+Let's say you had a directory of Markdown documents. `flyguy` lets you convert these to HTML by simply substituting the `.md` extension for `.htm` and then reading from it. So if you have `foobar.md` on your drive, opening `foobar.htm` would transparently convert its contents to HTML.
+
+Think of it as content negotiation for the filesystem.
 
 ## Installation
 
@@ -16,14 +20,14 @@ First, define your converters as an object that maps source types to destination
 const marked = require('marked');
 
 const converters = {
-	md: {
-		htm: {
-			string: true,
-			convert: function(str) {
-				return marked(str);
-			}
-		}
-	}
+    md: {
+        htm: {
+            string: true,
+            convert: function(str) {
+                return marked(str);
+            }
+        }
+    }
 };
 ```
 
@@ -35,7 +39,7 @@ Next instantiate a flyguy instance for a given root directory:
 const flyguy = require('flyguy');
 
 const fg = flyguy("/home/jason/somedir", {
-	converters: converters
+    converters: converters
 });
 ```
 
@@ -44,10 +48,77 @@ Now we can open non-existent files and have them be transparently generated, if 
 ```javascript
 const stream = fg.createReadStream('docs.htm');
 stream.on('data', (html) => {
-	console.log("conversion complete");
-	console.log(html);
+    console.log("conversion complete");
+    console.log(html);
 });
 ```
+
+## API
+
+#### `var fg = flyguy(rootDirectory, opts)`
+
+Create a new instance.
+
+  * `rootDirectory` - files will be opened relative to this directory
+  * `opts` - configuration; valid keys:
+    * `converters`: object specifying converters, see below
+
+#### `var stream = fg.createReadStream(file, [opts])`
+
+Read data from a file, performing transparent format conversion if said file does not exist and a suitable conversion is defined.
+
+`opts` are passed to the underlying file stream.
+
+Returns a readable stream.
+
+## Converters
+
+Converters are specified as nested maps of source to target file types. File types may be specified as either filename extensions or MIME types, with filename extension taking precedence. Here's a configuration that will convert `md` files into `pdf`, `htm` and `tex`, and `pdf` files into `htm`:
+
+```javascripts
+{
+    md: {
+        pdf: {
+            // converter implementation
+            // ...
+        },
+        htm: {
+            // converter implementation
+            // ...
+        },
+        tex: {
+            // converter implementation
+            // ...
+        }
+    },
+    pdf: {
+        htm: {
+            // converter implementation
+            // ...
+        }
+    }
+}
+```
+
+The converter implementation is straightforward:
+
+```javascript
+{
+    string: false, // optional, default = false
+    streaming: false, // optional, default = false
+    convert: function(data) { // required
+
+    }
+}
+```
+
+`convert` is a function that takes the source data and returns the transformed data. By default, the entirety of the data to be converted is passed to a single call to `convert`, but if `streaming` is set, `convert` will instead be called once for each chunk emitted by the underlying file stream. By default, `Buffer` instances are passed as data to `convert`. Set `string` to true to indicate that data should first be decoded to a string; in this instance, the `encoding` parameter (if present) will be respected in the initial call to `createReadStream`.
+
+## TODO
+
+  - [ ] support async conversion functions
+  - [ ] support arrays of converter objects, performing merging internally
+  - [ ] derive higher order conversions via tree search
 
 ## Copyright &amp; License
 
