@@ -24,18 +24,18 @@ function create(rootDirectory, opts) {
             opts = opts || {};
             const fullPath = join(rootDirectory, path);
 
-            var isString, isStreaming, convert, chunks;
+            var isString, isStreaming, convert, chunks, state;
             
             const stream = through(function write(data) {
                 if (isStreaming) {
-                    this.emit('data', convert(data));
+                    this.emit('data', convert(data, state));
                 } else {
                     chunks.push(data);
                 }
             }, function end() {
                 if (!isStreaming) {
                     const source = isString ? chunks.join('') : Buffer.concat(chunks);
-                    this.emit('data', convert(source));
+                    this.emit('data', convert(source, state));
                 }
                 this.emit('end');
             });
@@ -53,6 +53,8 @@ function create(rootDirectory, opts) {
                 if (!isStreaming) {
                     chunks = [];
                 }
+
+                state = converter.init ? converter.init() : null;
 
                 convert = converter.convert;
                 if (converter !== PASSTHROUGH) {
