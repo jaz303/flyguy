@@ -98,7 +98,6 @@ function create(rootDirectory, opts) {
                         }
                     }
                 }
-                // not conversion found - just return same path so the open operation fails
                 return cb(new Error("no conversion found"));
             });
         });
