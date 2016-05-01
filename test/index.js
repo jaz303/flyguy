@@ -42,6 +42,12 @@ function readStringFile(stream, cb) {
     });
 }
 
+test('defaults to root directory', (assert) => {
+    const fg = flyguy({ converters: CONVERTERS });
+    assert.equal(fg.rootDirectory, '/');
+    assert.end();
+});
+
 test('does not exist', (assert) => {
     const fg = instance();
     const stream = fg.createReadStream('foobar.md');

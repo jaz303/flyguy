@@ -14,12 +14,24 @@ const PASSTHROUGH = {
 };
 
 function create(rootDirectory, opts) {
+    if (typeof rootDirectory === 'object') {
+        opts = rootDirectory;
+        rootDirectory = null;
+    }
+
+    rootDirectory = rootDirectory || '/';
+    if (typeof rootDirectory !== 'string') {
+        throw new Error("root directory must be a string");
+    }
+
     if (!opts) throw new Error("opts must be provided");
 
     const converters = opts.converters;
     if (!converters) throw new Error("converters must be specified");
 
     return {
+        rootDirectory: rootDirectory,
+
         createReadStream: function(path, opts) {
             opts = opts || {};
             const fullPath = join(rootDirectory, path);

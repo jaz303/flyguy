@@ -57,11 +57,11 @@ stream.on('data', (html) => {
 
 ## API
 
-#### `var fg = flyguy(rootDirectory, opts)`
+#### `var fg = flyguy([rootDirectory], opts)`
 
 Create a new instance.
 
-  * `rootDirectory` - files will be opened relative to this directory
+  * `rootDirectory` - files will be opened relative to this directory. If omitted, defaults to the root directory.
   * `opts` - configuration; valid keys:
     * `converters`: object specifying converters, see below
 
