@@ -25,7 +25,7 @@ const converters = {
     md: {
         htm: {
             string: true,
-            convert: function(str) {
+            convert: function(str, state) {
                 return marked(str);
             }
         }
@@ -108,13 +108,18 @@ The converter implementation is straightforward:
 {
     string: false, // optional, default = false
     streaming: false, // optional, default = false
-    convert: function(data) { // required
-
+    init: function() { // optional
+        return { ... };
+    },
+    convert: function(data, state) { // required
+        // transform `data` here and return
     }
 }
 ```
 
 `convert` is a function that takes the source data and returns the transformed data. By default, the entirety of the data to be converted is passed to a single call to `convert`, but if `streaming` is set, `convert` will instead be called once for each chunk emitted by the underlying file stream. By default, `Buffer` instances are passed as data to `convert`. Set `string` to true to indicate that data should first be decoded to a string; in this instance, the `encoding` parameter (if present) will be respected in the initial call to `createReadStream`.
+
+If the conversion process is stateful, implement the `init` function which should return the initial state of the conversion process; this will be passed as the second argument to `convert`.
 
 ## TODO
 
